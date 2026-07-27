@@ -3,5 +3,5 @@ services:
     name: carescheduler-task-manager
     runtime: python
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r task_manager/requirements.txt
     startCommand: gunicorn wsgi:app

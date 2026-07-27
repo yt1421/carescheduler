@@ -89,9 +89,13 @@ python -m task_manager.app
 
 1. https://render.com でアカウント作成（GitHub連携でOK、クレジットカード不要）
 2. 「New +」→「Web Service」→ このリポジトリ（`yt1421/carescheduler`）を選択
-3. リポジトリ直下の `render.yaml` を自動検出してくれるので、そのまま「Apply」
-   （検出されない場合は Build Command: `pip install -r requirements.txt` /
-   Start Command: `gunicorn wsgi:app` を手動入力）
+3. `render.yaml` は「New +」→「Blueprint」を選んだ場合のみ自動適用されるため、
+   「Web Service」から作成した場合は以下を手動で入力してください。
+   - Build Command: `pip install -r task_manager/requirements.txt`
+   - Start Command: `gunicorn wsgi:app`
+   （`task_manager/requirements.txt` はタスク管理アプリに必要なFlask/gunicornのみを
+   含む軽量版です。ルート直下の `requirements.txt` には割り振りエンジン用の
+   pandas等も含まれておりビルドが不安定になることがあるため使いません）
 4. デプロイ完了後に発行される `https://xxxxx.onrender.com` にiPhoneのSafariでアクセス
 5. Safariの共有ボタン →「ホーム画面に追加」でアプリのように使えます
 
