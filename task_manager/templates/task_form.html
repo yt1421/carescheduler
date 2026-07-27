@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ '編集' if task else '新規タスク' }}{% endblock %}
+{% block content %}
+<h1>{{ '編集' if task else '新規タスク' }}</h1>
+
+<form class="task-form" method="post">
+  <label>タイトル<span class="required">*</span>
+    <input type="text" name="title" required value="{{ task.title if task else '' }}">
+  </label>
+
+  <label>詳細
+    <textarea name="description" rows="3">{{ task.description if task else '' }}</textarea>
+  </label>
+
+  <label>カテゴリ（例: 面談・会議・report・シフト調整）
+    <input type="text" name="category" value="{{ task.category if task else '' }}">
+  </label>
+
+  <div class="form-row">
+    <label>緊急度
+      <select name="urgency">
+        {% for key, label in urgency_labels.items() %}
+          <option value="{{ key }}" {{ 'selected' if (task and task.urgency == key) or (not task and key == 'medium') }}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>状態
+      <select name="status">
+        {% for key, label in status_labels.items() %}
+          <option value="{{ key }}" {{ 'selected' if task and task.status == key }}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </div>
+
+  <div class="form-row">
+    <label>期日
+      <input type="date" name="due_date" value="{{ task.due_date if task else '' }}">
+    </label>
+    <label>時刻
+      <input type="time" name="due_time" value="{{ task.due_time if task else '' }}">
+    </label>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn--primary">{{ '更新する' if task else '作成する' }}</button>
+    <a class="btn" href="{{ url_for('task_list') }}">キャンセル</a>
+  </div>
+</form>
+{% endblock %}

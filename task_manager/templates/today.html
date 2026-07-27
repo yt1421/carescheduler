@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}今日やること{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>今日やること</h1>
+  <p class="hero__date">{{ today }}</p>
+  <div class="summary-strip">
+    <div class="summary-chip summary-chip--overdue"><span class="summary-chip__num">{{ summary.overdue_count }}</span>期限超過</div>
+    <div class="summary-chip summary-chip--today"><span class="summary-chip__num">{{ summary.due_today_count }}</span>本日期限</div>
+    <div class="summary-chip summary-chip--urgent"><span class="summary-chip__num">{{ summary.urgent_count }}</span>緊急対応</div>
+    <div class="summary-chip summary-chip--open"><span class="summary-chip__num">{{ summary.open_count }}</span>未完了合計</div>
+  </div>
+</section>
+
+{% if summary.overdue_count > 0 %}
+<div class="alert alert--danger" id="reminder-banner">
+  ⚠️ 期限を過ぎている未完了タスクが {{ summary.overdue_count }} 件あります。優先的に対応してください。
+</div>
+{% elif summary.due_today_count > 0 %}
+<div class="alert alert--warning" id="reminder-banner">
+  🔔 本日期限のタスクが {{ summary.due_today_count }} 件あります。
+</div>
+{% endif %}
+
+<section class="task-section">
+  <h2>優先対応リスト（期限超過・本日期限・緊急）</h2>
+  {% if focus_tasks %}
+    <div class="task-list">
+      {% for t in focus_tasks %}{{ m.task_card(t) }}{% endfor %}
+    </div>
+  {% else %}
+    <p class="empty-state">対応が必要なタスクはありません。お疲れさまです 🎉</p>
+  {% endif %}
+</section>
+
+<section class="task-section">
+  <h2>今後の予定（近日中）</h2>
+  {% if upcoming %}
+    <div class="task-list">
+      {% for t in upcoming %}{{ m.task_card(t) }}{% endfor %}
+    </div>
+  {% else %}
+    <p class="empty-state">近日中の予定はありません。</p>
+  {% endif %}
+</section>
+{% endblock %}

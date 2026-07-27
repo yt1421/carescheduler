@@ -1,0 +1,44 @@
+{% macro due_badge(t) -%}
+  {% if t.due_state == 'overdue' -%}
+    <span class="badge badge--overdue">期限超過 {{ -t.days_left }}日</span>
+  {%- elif t.due_state == 'today' -%}
+    <span class="badge badge--today">本日期限</span>
+  {%- elif t.due_state == 'soon' -%}
+    <span class="badge badge--soon">あと{{ t.days_left }}日</span>
+  {%- elif t.due_state == 'later' -%}
+    <span class="badge badge--later">あと{{ t.days_left }}日</span>
+  {%- endif %}
+{%- endmacro %}
+
+{% macro task_card(t, show_date=True) -%}
+<div class="task-card task-card--{{ t.urgency }} {{ 'task-card--done' if t.status == 'done' }}">
+  <div class="task-card__main">
+    <div class="task-card__badges">
+      <span class="badge badge--urgency badge--urgency-{{ t.urgency }}">{{ t.urgency_label }}</span>
+      <span class="badge badge--status badge--status-{{ t.status }}">{{ t.status_label }}</span>
+      {% if t.category %}<span class="badge badge--category">{{ t.category }}</span>{% endif %}
+      {{ due_badge(t) }}
+    </div>
+    <h3 class="task-card__title">{{ t.title }}</h3>
+    {% if t.description %}<p class="task-card__desc">{{ t.description }}</p>{% endif %}
+    {% if show_date and (t.due_date or t.due_time) %}
+      <p class="task-card__due">📅 {{ t.due_date or '日付未設定' }}{% if t.due_time %} {{ t.due_time }}{% endif %}</p>
+    {% endif %}
+  </div>
+  <div class="task-card__actions">
+    {% if t.status != 'done' %}
+      <form method="post" action="{{ url_for('task_complete', task_id=t.id) }}">
+        <button type="submit" class="btn btn--complete">完了</button>
+      </form>
+    {% else %}
+      <form method="post" action="{{ url_for('task_reopen', task_id=t.id) }}">
+        <button type="submit" class="btn btn--reopen">再開</button>
+      </form>
+    {% endif %}
+    <a class="btn btn--edit" href="{{ url_for('task_edit', task_id=t.id) }}">編集</a>
+    <form method="post" action="{{ url_for('task_delete', task_id=t.id) }}" onsubmit="return confirm('このタスクを削除しますか？');">
+      <button type="submit" class="btn btn--delete">削除</button>
+    </form>
+  </div>
+</div>
+{%- endmacro %}

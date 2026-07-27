@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}タスク一覧{% endblock %}
+{% block content %}
+<h1>タスク一覧</h1>
+
+<form class="filter-bar" method="get">
+  <label>状態
+    <select name="status" onchange="this.form.submit()">
+      <option value="" {{ 'selected' if current_status == '' }}>すべて</option>
+      {% for key, label in status_labels.items() %}
+        <option value="{{ key }}" {{ 'selected' if current_status == key }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>緊急度
+    <select name="urgency" onchange="this.form.submit()">
+      <option value="" {{ 'selected' if current_urgency == '' }}>すべて</option>
+      {% for key, label in urgency_labels.items() %}
+        <option value="{{ key }}" {{ 'selected' if current_urgency == key }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>並び順
+    <select name="sort" onchange="this.form.submit()">
+      <option value="urgency" {{ 'selected' if current_sort == 'urgency' }}>緊急度順</option>
+      <option value="due_date" {{ 'selected' if current_sort == 'due_date' }}>期日順</option>
+    </select>
+  </label>
+</form>
+
+{% if tasks %}
+  <div class="task-list">
+    {% for t in tasks %}{{ m.task_card(t) }}{% endfor %}
+  </div>
+{% else %}
+  <p class="empty-state">該当するタスクはありません。</p>
+{% endif %}
+{% endblock %}
