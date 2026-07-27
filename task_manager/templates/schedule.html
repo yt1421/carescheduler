@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}予定{% endblock %}
+{% block content %}
+<h1>予定（期日順）</h1>
+
+{% if days %}
+  {% for day in days %}
+    <section class="schedule-day">
+      <h2 class="schedule-day__heading {{ 'schedule-day__heading--today' if day == today }}">
+        {{ day }}{% if day == today %} ・本日{% endif %}
+      </h2>
+      <div class="task-list">
+        {% for t in grouped[day] %}{{ m.task_card(t, show_date=False) }}{% endfor %}
+      </div>
+    </section>
+  {% endfor %}
+{% else %}
+  <p class="empty-state">期日が設定された予定はありません。</p>
+{% endif %}
+{% endblock %}

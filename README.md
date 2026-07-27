@@ -55,6 +55,70 @@ CareScheduler は、施設内訪問看護における訪問担当者の割り振
 
 ---
 
+## 看護管理者タスク管理アプリ (task_manager)
+
+看護管理者自身の日々の業務（面談、報告書、会議、シフト調整など）を管理するための
+Webアプリです。`task_manager/` 以下に、CareSchedulerの自動割り振りエンジンとは
+独立したFlaskアプリとして実装しています。
+
+### 機能
+
+- **今日やること**: 期限超過・本日期限・緊急度「緊急」のタスクを自動抽出して表示するダッシュボード
+- **緊急度管理**: 緊急 / 高 / 中 / 低 の4段階でタスクを整理し、緊急度順に並び替え
+- **期日・予定管理**: 期日（日付・時刻）を設定し、「予定」ページで日付ごとに一覧表示
+- **リマインド**: 期限超過・本日期限のタスクがある場合、ダッシュボードに警告バナーを表示し、
+  ブラウザの通知許可があればブラウザ通知でもお知らせ
+- タスクの作成・編集・完了・再開・削除
+
+### 起動方法
+
+```bash
+pip install -r requirements.txt
+python -m task_manager.app
+```
+
+起動後、ブラウザで `http://localhost:5000` にアクセスしてください。
+データは `task_manager/data/tasks.db`（SQLite）に保存されます。
+
+### iPhone(iOS)から使う（クラウドへの無料デプロイ）
+
+ローカルで起動しただけではiPhoneから開けません。どこかのサーバーで常時動かし、
+発行されたHTTPSのURLをiPhoneのSafariで開く必要があります。
+
+**Render（無料プラン）にデプロイする手順**
+
+1. https://render.com でアカウント作成（GitHub連携でOK、クレジットカード不要）
+2. 「New +」→「Web Service」→ このリポジトリ（`yt1421/carescheduler`）を選択
+3. `render.yaml` は「New +」→「Blueprint」を選んだ場合のみ自動適用されるため、
+   「Web Service」から作成した場合は以下を手動で入力してください。
+   - Build Command: `pip install -r task_manager/requirements.txt`
+   - Start Command: `gunicorn wsgi:app`
+   （`task_manager/requirements.txt` はタスク管理アプリに必要なFlask/gunicornのみを
+   含む軽量版です。ルート直下の `requirements.txt` には割り振りエンジン用の
+   pandas等も含まれておりビルドが不安定になることがあるため使いません）
+4. デプロイ完了後に発行される `https://xxxxx.onrender.com` にiPhoneのSafariでアクセス
+5. Safariの共有ボタン →「ホーム画面に追加」でアプリのように使えます
+
+**⚠️ 重要な注意点（データの永続化について）**
+
+Render の無料プランはディスクが一時的（ephemeral）で、15分間アクセスがないと
+スリープし、次回アクセス時に再起動されます。この再起動のタイミングで
+`task_manager/data/tasks.db` の内容が失われる可能性があります。
+
+本番運用でタスクデータを確実に残したい場合は、以下のいずれかをおすすめします。
+
+- **PythonAnywhere**（無料プラン）を使う: ディスクが永続化されるため、
+  再起動でデータが消えません。ダッシュボードからBashコンソールでリポジトリを
+  `git clone` し、Web appの設定でWSGIファイルとして `wsgi.py` の
+  `application` を指定してください。
+- Render を使いつつ、有料の Persistent Disk を追加する、または
+  SQLiteの代わりに外部DB（Render PostgreSQLなど）に切り替える
+
+現状（無料・お試し利用）であればRenderのままで問題ありませんが、
+本格的に運用する場合は上記の対策を検討してください。
+
+---
+
 ## 開発ロードマップ
 
 ### Sprint1
