@@ -80,6 +80,39 @@ python -m task_manager.app
 起動後、ブラウザで `http://localhost:5000` にアクセスしてください。
 データは `task_manager/data/tasks.db`（SQLite）に保存されます。
 
+### iPhone(iOS)から使う（クラウドへの無料デプロイ）
+
+ローカルで起動しただけではiPhoneから開けません。どこかのサーバーで常時動かし、
+発行されたHTTPSのURLをiPhoneのSafariで開く必要があります。
+
+**Render（無料プラン）にデプロイする手順**
+
+1. https://render.com でアカウント作成（GitHub連携でOK、クレジットカード不要）
+2. 「New +」→「Web Service」→ このリポジトリ（`yt1421/carescheduler`）を選択
+3. リポジトリ直下の `render.yaml` を自動検出してくれるので、そのまま「Apply」
+   （検出されない場合は Build Command: `pip install -r requirements.txt` /
+   Start Command: `gunicorn wsgi:app` を手動入力）
+4. デプロイ完了後に発行される `https://xxxxx.onrender.com` にiPhoneのSafariでアクセス
+5. Safariの共有ボタン →「ホーム画面に追加」でアプリのように使えます
+
+**⚠️ 重要な注意点（データの永続化について）**
+
+Render の無料プランはディスクが一時的（ephemeral）で、15分間アクセスがないと
+スリープし、次回アクセス時に再起動されます。この再起動のタイミングで
+`task_manager/data/tasks.db` の内容が失われる可能性があります。
+
+本番運用でタスクデータを確実に残したい場合は、以下のいずれかをおすすめします。
+
+- **PythonAnywhere**（無料プラン）を使う: ディスクが永続化されるため、
+  再起動でデータが消えません。ダッシュボードからBashコンソールでリポジトリを
+  `git clone` し、Web appの設定でWSGIファイルとして `wsgi.py` の
+  `application` を指定してください。
+- Render を使いつつ、有料の Persistent Disk を追加する、または
+  SQLiteの代わりに外部DB（Render PostgreSQLなど）に切り替える
+
+現状（無料・お試し利用）であればRenderのままで問題ありませんが、
+本格的に運用する場合は上記の対策を検討してください。
+
 ---
 
 ## 開発ロードマップ
